@@ -1,0 +1,21 @@
+{
+  "name": "History Stats",
+  "version": "0.1",
+  "description": "Show pretty graphs.",
+  "homepage_url": "https://github.com/ggreer/history-stats",
+
+  "browser_action": {
+    "default_icon": "icon.png",
+    "popup": "popup.html"
+  },
+  "icons": {
+      "48": "icon48.png",
+      "128": "icon128.png"
+  },
+  "permissions": [
+    "<all_urls>",
+    "chrome://favicon/",
+    "history",
+    "tabs"
+  ]
+}
