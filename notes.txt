@@ -1,0 +1,5 @@
+graphing library: d3
+show more general stats about browsing
+    time per domain
+    most popular sites (show whether or not they're bookmarks/topsites)
+    bookmark usage
