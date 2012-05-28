@@ -1,3 +1,16 @@
 body {
     background-color: #ddd;
 }
+
+.chart {
+    background-color: white;
+}
+
+.chart rect {
+    fill: steelblue;
+    stroke: white;
+}
+
+.chart text {
+    font: 10px sans-serif;
+}

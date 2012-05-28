@@ -4,49 +4,77 @@ var history_visits = [];
 var history_visits_to_urls = [];
 
 var data = [];
+var values = [];
 
 var barWidth = 40;
-var width = (barWidth + 10) * MAX_RESULTS;
+var width = 600; //(barWidth + 10) * MAX_RESULTS;
 var height = 400;
 
 var svg;
-var body;
 
-function init() {
+function init_graph() {
     svg = d3.select("body").append("svg")
             .attr("height", height)
             .attr("width", width)
-            .append("g")
-            .attr("transform", "translate(" + x(1) + "," + (height - 20) + ")scale(-1,-1)");
-    body = svg.append("g")
-              .attr("transform", "translate(0,0)");
+            .attr("class", "chart");
 }
 
 function draw_graph() {
     var i;
-    var urls;
+    var urls = [];
     var url;
-    var url_node;
-    urls = Object.keys(history_urls);
-    if (data.length === 0) {
-        console.log("no data. retrying in 500ms");
+    var x;
+
+    if (data.length < MAX_RESULTS) {
+        console.log("not enough data. retrying in 500ms");
         setTimeout(draw_graph, 500);
+        return;
     }
-    if (body === undefined) {
+    if (svg === undefined) {
         console.log("svg doesn't exist yet. retrying in 500ms");
         setTimeout(draw_graph, 500);
+        return;
     }
 
-    console.log("drawing graph");
+    console.log("drawing graph...");
 
-    var x = d3.scale.linear().domain([0, data.length]).range([0, width]);
-    var y = d3.scale.linear().domain([0, d3.max(data, function(datum) { return datum.books; })]).rangeRound([0, height]);
+    data.sort(function (a,b) {
+        if (a.visits > b.visits) {
+            return -1;
+        }
+        else if (a.visits < b.visits) {
+            return 1;
+        }
+        return 0;
+    });
 
-    for (i = 0; i < urls.length; i++) {
-        url = urls[i];
-        url_node = svg.append("g").data(url.visits);
-        url_node.text(url);
+    for (i = 0; i < data.length; i++) {
+        urls.push(data[i].url);
     }
+
+    values.sort(function (a, b) {
+        return b - a;
+    });
+
+    x = d3.scale.linear()
+          .domain([0, d3.max(values)])
+          .range([0, 420]);
+
+    svg.selectAll("rect").data(data)
+       .enter().append("rect")
+       .attr("y", function(d, i) { return i * 20; })
+       .attr("width", function (d) {return x(d.visits);})
+       .attr("height", 20)
+       .text(function (d) { return d.url; });
+
+    svg.selectAll("text").data(values)
+       .enter().append("text")
+       .attr("x", x)
+       .attr("y", function(d, i) { return (i * 20); })
+       .attr("dx", -3) // padding-right
+       .attr("dy", "1.4em") // vertical-align: middle
+       .attr("text-anchor", "end") // text-align: right
+       .text(String);
 }
 
 function set_history(url) {
@@ -59,8 +87,9 @@ function set_history(url) {
             visit = visits[i];
             history_visits_to_urls[visit.visitId] = url;
             history_visits[visit.visitId] = visit;
-            data.push({url: url, visits: visits.length});
         }
+        data.push({url: url, visits: visits.length});
+        values.push(visits.length);
     };
 }
 
