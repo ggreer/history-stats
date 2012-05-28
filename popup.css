@@ -13,4 +13,9 @@ body {
 
 .chart text {
     font: 10px sans-serif;
+    stroke: white;
+}
+
+.chart text.black {
+    stroke: black;
 }

@@ -10,6 +10,8 @@ var barWidth = 40;
 var width = 600; //(barWidth + 10) * MAX_RESULTS;
 var height = 400;
 
+var x_offset;
+
 var svg;
 
 function init_graph() {
@@ -24,6 +26,8 @@ function draw_graph() {
     var urls = [];
     var url;
     var x;
+    var numbers;
+    var labels;
 
     if (data.length < MAX_RESULTS) {
         console.log("not enough data. retrying in 500ms");
@@ -56,25 +60,40 @@ function draw_graph() {
         return b - a;
     });
 
+    x_offset = 100;
+
     x = d3.scale.linear()
           .domain([0, d3.max(values)])
           .range([0, 420]);
 
     svg.selectAll("rect").data(data)
        .enter().append("rect")
-       .attr("y", function(d, i) { return i * 20; })
+       .attr("x", x_offset)
+       .attr("y", function (d, i) { return i * 20; })
        .attr("width", function (d) {return x(d.visits);})
-       .attr("height", 20)
-       .text(function (d) { return d.url; });
+       .attr("height", 20);
 
-    svg.selectAll("text").data(values)
+    numbers = svg.append("g");
+    numbers.selectAll("text").data(values)
        .enter().append("text")
-       .attr("x", x)
-       .attr("y", function(d, i) { return (i * 20); })
-       .attr("dx", -3) // padding-right
-       .attr("dy", "1.4em") // vertical-align: middle
-       .attr("text-anchor", "end") // text-align: right
+       .attr("x", function (d) { return x(d) + x_offset; })
+       .attr("y", function (d, i) { return (i * 20); })
+       .attr("dx", -3)
+       .attr("dy", "1.4em")
+       .attr("text-anchor", "end")
        .text(String);
+
+    labels = svg.append("g");
+    labels.selectAll("text").data(urls)
+       .enter().append("text")
+       .attr("x", 10)
+       .attr("y", function(d, i) { return (i * 20); })
+       .attr("dx", -3)
+       .attr("dy", "1.4em")
+       .attr("text-anchor", "start")
+       .attr("class", "black")
+       .text(String);
+    
 }
 
 function set_history(url) {
