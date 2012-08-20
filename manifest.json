@@ -1,7 +1,8 @@
 {
     "browser_action": {
         "default_icon": "icons/icon.png",
-        "popup": "popup.html"
+        "default_popup": "popup.html",
+        "default_title": "History Stats"
     },
     "description": "Show pretty graphs.",
     "homepage_url": "https://github.com/ggreer/history-stats",
