@@ -1,21 +1,21 @@
 {
-  "name": "History Stats",
-  "version": "0.1",
-  "description": "Show pretty graphs.",
-  "homepage_url": "https://github.com/ggreer/history-stats",
-
-  "browser_action": {
-    "default_icon": "icons/icon.png",
-    "popup": "popup.html"
-  },
-  "icons": {
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
-  },
-  "permissions": [
-    "<all_urls>",
-    "chrome://favicon/",
-    "history",
-    "tabs"
-  ]
+    "browser_action": {
+        "default_icon": "icons/icon.png",
+        "popup": "popup.html"
+    },
+    "description": "Show pretty graphs.",
+    "homepage_url": "https://github.com/ggreer/history-stats",
+    "icons": {
+        "128": "icons/icon128.png",
+        "48": "icons/icon48.png"
+    },
+    "manifest_version": 2,
+    "name": "History Stats",
+    "permissions": [
+        "<all_urls>",
+        "chrome://favicon/",
+        "history",
+        "tabs"
+    ],
+    "version": "0.1"
 }
