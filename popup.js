@@ -1,20 +1,17 @@
 var MAX_RESULTS = 100;
-var history_urls = [];
-var history_visits = [];
-var history_visits_to_urls = [];
+var history_urls = {};
+var history_visits = {};
+var history_visits_to_urls = {};
 
-var data = [];
-var values = [];
+var data = {};
 
 var width = 600;
 var height = 400;
 
-var x_offset;
-
 var svg;
 
 function init_graph() {
-    svg = d3.select("body").append("svg")
+    svg = d3.select("#graph_container").append("svg")
             .attr("height", height)
             .attr("width", width)
             .attr("class", "chart");
@@ -27,66 +24,58 @@ function draw_graph() {
     var x;
     var numbers;
     var labels;
+    var bar_height = 20;
+    var spacing = 2;
+    var x_offset = 100;
 
-    if (data.length < MAX_RESULTS) {
-        console.log("not enough data. retrying in 500ms");
-        setTimeout(draw_graph, 500);
-        return;
-    }
-    if (svg === undefined) {
-        console.log("svg doesn't exist yet. retrying in 500ms");
-        setTimeout(draw_graph, 500);
-        return;
-    }
+    d3.select("#graph_container svg").remove();
+    svg = d3.select("#graph_container").append("svg")
+            .attr("height", height)
+            .attr("width", width)
+            .attr("class", "chart");
 
     console.log("drawing graph...");
-
-    data.sort(function (a,b) {
-        if (a.visits > b.visits) {
+    var data_arr = [];
+    for (var k in data) {
+      data_arr.push(data[k]);
+    }
+    console.log(data_arr);
+    data_arr.sort(function (a,b) {
+        if (a.visits.length > b.visits.length) {
             return -1;
         }
-        else if (a.visits < b.visits) {
+        else if (a.visits.length < b.visits.length) {
             return 1;
         }
         return 0;
     });
 
-    for (i = 0; i < data.length; i++) {
-        urls.push(data[i].url);
-    }
-
-    values.sort(function (a, b) {
-        return b - a;
-    });
-
-    x_offset = 100;
 
     x = d3.scale.linear()
-          .domain([0, d3.max(values)])
+          .domain([0, d3.max(data_arr, function (d) {
+              return d.visits.length;
+          })])
           .range([0, 420]);
 
-    var bar_height = 20;
-    var spacing = 2;
-
-    svg.selectAll("rect").data(data)
+    svg.selectAll("rect").data(data_arr)
        .enter().append("rect")
        .attr("x", x_offset)
        .attr("y", function (d, i) { return i * (bar_height + spacing); })
-       .attr("width", function (d) {return x(d.visits);})
+       .attr("width", function (d) {return x(d.visits.length);})
        .attr("height", bar_height);
 
     numbers = svg.append("g");
-    numbers.selectAll("text").data(values)
+    numbers.selectAll("text").data(data_arr)
        .enter().append("text")
-       .attr("x", function (d) { return x(d) + x_offset; })
+       .attr("x", function (d) { return x(d.visits.length) + x_offset; })
        .attr("y", function (d, i) { return i * (bar_height + spacing); })
        .attr("dx", -3)
        .attr("dy", "1.4em")
        .attr("text-anchor", "end")
-       .text(String);
+       .text(function (d) { return d.visits.length; });
 
     labels = svg.append("g");
-    labels.selectAll("text").data(urls)
+    labels.selectAll("text").data(data_arr)
        .enter().append("text")
        .attr("x", 10)
        .attr("y", function(d, i) { return i * (bar_height + spacing); })
@@ -94,9 +83,9 @@ function draw_graph() {
        .attr("dy", "1.4em")
        .attr("text-anchor", "start")
        .attr("class", "black")
-       .text(String);
+       .text(function (d) { return d.url; });
 
-    height = (bar_height + spacing) * data.length;
+    height = (bar_height + spacing) * data_arr.length;
     svg.attr("height", height);
 }
 
@@ -111,8 +100,14 @@ function set_history(url) {
             history_visits_to_urls[visit.visitId] = url;
             history_visits[visit.visitId] = visit;
         }
-        data.push({url: url, visits: visits.length});
-        values.push(visits.length);
+        var url_no_hash = url.split("#")[0];
+        if (data[url_no_hash] === undefined) {
+          data[url_no_hash] = {url: url_no_hash, visits: visits};
+        }
+        else {
+          data[url_no_hash].visits.push(visits);
+        }
+        draw_graph();
     };
 }
 
@@ -126,10 +121,8 @@ function get_history(start_time) {
             for (i = 0; i < history_items.length; i++) {
                 var hi = history_items[i];
                 history_urls[hi.url] = hi;
-                //todo: don't declare this function in a loop
                 chrome.history.getVisits({"url": hi.url}, set_history(hi.url));
             }
-            draw_graph();
         }
     );
 }
