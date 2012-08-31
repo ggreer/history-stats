@@ -146,10 +146,10 @@ function get_history(start_time) {
     );
 }
 
-get_history();
 
 document.addEventListener("DOMContentLoaded", function () {
   init_graph();
+  get_history();
   document.getElementById("visits_domain").addEventListener("click", function () {
     visit_count_graph(domain_data);
   });
