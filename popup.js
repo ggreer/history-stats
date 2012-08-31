@@ -131,3 +131,5 @@ function get_history(start_time) {
 }
 
 get_history();
+
+document.addEventListener('DOMContentLoaded', init_graph);
