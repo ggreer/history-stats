@@ -6,8 +6,7 @@ var history_visits_to_urls = [];
 var data = [];
 var values = [];
 
-var barWidth = 40;
-var width = 600; //(barWidth + 10) * MAX_RESULTS;
+var width = 600;
 var height = 400;
 
 var x_offset;
@@ -66,18 +65,21 @@ function draw_graph() {
           .domain([0, d3.max(values)])
           .range([0, 420]);
 
+    var bar_height = 20;
+    var spacing = 2;
+
     svg.selectAll("rect").data(data)
        .enter().append("rect")
        .attr("x", x_offset)
-       .attr("y", function (d, i) { return i * 20; })
+       .attr("y", function (d, i) { return i * (bar_height + spacing); })
        .attr("width", function (d) {return x(d.visits);})
-       .attr("height", 20);
+       .attr("height", bar_height);
 
     numbers = svg.append("g");
     numbers.selectAll("text").data(values)
        .enter().append("text")
        .attr("x", function (d) { return x(d) + x_offset; })
-       .attr("y", function (d, i) { return (i * 20); })
+       .attr("y", function (d, i) { return i * (bar_height + spacing); })
        .attr("dx", -3)
        .attr("dy", "1.4em")
        .attr("text-anchor", "end")
@@ -87,13 +89,15 @@ function draw_graph() {
     labels.selectAll("text").data(urls)
        .enter().append("text")
        .attr("x", 10)
-       .attr("y", function(d, i) { return (i * 20); })
+       .attr("y", function(d, i) { return i * (bar_height + spacing); })
        .attr("dx", -3)
        .attr("dy", "1.4em")
        .attr("text-anchor", "start")
        .attr("class", "black")
        .text(String);
-    
+
+    height = (bar_height + spacing) * data.length;
+    svg.attr("height", height);
 }
 
 function set_history(url) {
