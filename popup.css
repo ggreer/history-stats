@@ -1,6 +1,16 @@
 body {
-    background-color: #ddd;
+    background-color: #fff;
 }
+
+#nav ul, #nav ul li {
+    display: inline;
+    list-style: none;
+}
+#nav ul li {
+    line-height: 200%;
+    margin: 0 1em;
+}
+
 
 .chart {
     background-color: white;
@@ -10,12 +20,10 @@ body {
     fill: steelblue;
     stroke: white;
 }
-
 .chart text {
     font: 10px sans-serif;
     stroke: white;
 }
-
 .chart text.black {
     stroke: black;
 }

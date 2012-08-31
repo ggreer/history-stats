@@ -4,6 +4,7 @@ var history_visits = {};
 var history_visits_to_urls = {};
 
 var data = {};
+var domain_data = {};
 
 var width = 600;
 var height = 400;
@@ -19,7 +20,7 @@ function init_graph() {
             .attr("class", "chart");
 }
 
-function draw_graph() {
+function visit_count_graph(graph_data) {
     var i;
     var urls = [];
     var url;
@@ -37,8 +38,8 @@ function draw_graph() {
             .attr("class", "chart");
 
     var data_arr = [];
-    for (var k in data) {
-      data_arr.push(data[k]);
+    for (var k in graph_data) {
+      data_arr.push(graph_data[k]);
     }
 
     data_arr.sort(function (a,b) {
@@ -94,6 +95,10 @@ function set_history(url) {
     return function(visits) {
         var i;
         var visit;
+        var domain;
+        var url_no_hash;
+        var url_no_protocol;
+
         console.log("appending " + visits.length + " visits to " + url);
         history_urls[url].visits = visits;
         for (i = 0; i < visits.length; i++) {
@@ -101,7 +106,17 @@ function set_history(url) {
             history_visits_to_urls[visit.visitId] = url;
             history_visits[visit.visitId] = visit;
         }
-        var url_no_hash = url.split("#")[0];
+
+        url_no_protocol = url.split("://", 2)[1];
+        domain = url_no_protocol.split("/", 2)[0];
+        if (domain_data[domain] === undefined) {
+          domain_data[domain] = {url: domain, visits: visits};
+        }
+        else {
+          domain_data[domain].visits.push(visits);
+        }
+
+        url_no_hash = url_no_protocol.split("#", 2)[0];
         if (data[url_no_hash] === undefined) {
           data[url_no_hash] = {url: url_no_hash, visits: visits};
         }
@@ -111,7 +126,7 @@ function set_history(url) {
         if (timeout_id !== undefined) {
           window.clearTimeout(timeout_id);
         }
-        timeout_id = window.setTimeout(draw_graph, 100);
+        timeout_id = window.setTimeout(function () { visit_count_graph(domain_data); }, 100);
     };
 }
 
@@ -133,4 +148,12 @@ function get_history(start_time) {
 
 get_history();
 
-document.addEventListener('DOMContentLoaded', init_graph);
+document.addEventListener("DOMContentLoaded", function () {
+  init_graph();
+  document.getElementById("visits_domain").addEventListener("click", function () {
+    visit_count_graph(domain_data);
+  });
+  document.getElementById("visits_url").addEventListener("click", function () {
+    visit_count_graph(data);
+  });
+});
