@@ -7,6 +7,7 @@ body {
     list-style: none;
 }
 #nav ul li {
+    cursor: pointer;
     line-height: 200%;
     margin: 0 1em;
 }
