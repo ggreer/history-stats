@@ -1,4 +1,4 @@
-var MAX_RESULTS = 100;
+var MAX_RESULTS = 1000;
 var history_urls = {};
 var history_visits = {};
 var history_visits_to_urls = {};
@@ -9,6 +9,8 @@ var width = 600;
 var height = 400;
 
 var svg;
+
+var timeout_id;
 
 function init_graph() {
     svg = d3.select("#graph_container").append("svg")
@@ -106,8 +108,10 @@ function set_history(url) {
         else {
           data[url_no_hash].visits.push(visits);
         }
-        // TODO: this is super-inefficient
-        draw_graph();
+        if (timeout_id !== undefined) {
+          window.clearTimeout(timeout_id);
+        }
+        timeout_id = window.setTimeout(draw_graph, 100);
     };
 }
 
