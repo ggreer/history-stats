@@ -34,12 +34,11 @@ function draw_graph() {
             .attr("width", width)
             .attr("class", "chart");
 
-    console.log("drawing graph...");
     var data_arr = [];
     for (var k in data) {
       data_arr.push(data[k]);
     }
-    console.log(data_arr);
+
     data_arr.sort(function (a,b) {
         if (a.visits.length > b.visits.length) {
             return -1;
@@ -107,6 +106,7 @@ function set_history(url) {
         else {
           data[url_no_hash].visits.push(visits);
         }
+        // TODO: this is super-inefficient
         draw_graph();
     };
 }
