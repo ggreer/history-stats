@@ -33,18 +33,20 @@ function visit_timeline(visit_data) {
 
     visits = visit_data;
     visits.sort(function (a, b) {
-        if (a.visitTime > b.visitTime) {
+        if (a.visitTime < b.visitTime) {
             return -1;
         }
-        else if (a.visitTime < b.visitTime) {
+        else if (a.visitTime > b.visitTime) {
             return 1;
         }
         return 0;
     });
 
+    var min = visits[0].visitTime;
+    var max = visits[visits.length - 1].visitTime;
     x = d3.scale.linear()
-          .domain([visits[0].visitTime, visits[visits.length - 1].visitTime])
-          .range(0, 420);
+          .domain([min, max])
+          .range([0, 420]);
 
     svg.selectAll("circle").data(visits)
        .enter().append("circle")
@@ -144,21 +146,17 @@ function set_history(url) {
         url_no_protocol = url.split("://", 2)[1];
         domain = url_no_protocol.split("/", 2)[0];
         if (domain_data[domain] === undefined) {
-          domain_data[domain] = {url: domain, visits: visits};
+            domain_data[domain] = {url: domain, visits: []};
         }
-        else {
-          domain_data[domain].visits.push(visits);
-        }
+        domain_data[domain].visits = domain_data[domain].visits.concat(visits);
 
         url_no_hash = url_no_protocol.split("#", 2)[0];
         if (data[url_no_hash] === undefined) {
-          data[url_no_hash] = {url: url_no_hash, visits: visits};
+            data[url_no_hash] = {url: url_no_hash, visits: []};
         }
-        else {
-          data[url_no_hash].visits.push(visits);
-        }
+        data[url_no_hash].visits = data[url_no_hash].visits.concat(visits);
         if (timeout_id !== undefined) {
-          window.clearTimeout(timeout_id);
+            window.clearTimeout(timeout_id);
         }
         timeout_id = window.setTimeout(function () { visit_count_graph(domain_data); }, 100);
     };
