@@ -10,7 +10,6 @@ var width = 600;
 var height = 400;
 
 var svg;
-
 var timeout_id;
 
 function init_graph() {
@@ -19,6 +18,42 @@ function init_graph() {
             .attr("width", width)
             .attr("class", "chart");
 }
+
+function visit_timeline(visit_data) {
+    var e;
+    var i;
+    var x;
+    var visits;
+
+    d3.select("#graph_container svg").remove();
+    svg = d3.select("#graph_container").append("svg")
+            .attr("height", height)
+            .attr("width", width)
+            .attr("class", "chart");
+
+    visits = visit_data;
+    visits.sort(function (a, b) {
+        if (a.visitTime > b.visitTime) {
+            return -1;
+        }
+        else if (a.visitTime < b.visitTime) {
+            return 1;
+        }
+        return 0;
+    });
+
+    x = d3.scale.linear()
+          .domain([visits[0].visitTime, visits[visits.length - 1].visitTime])
+          .range(0, 420);
+
+    svg.selectAll("circle").data(visits)
+       .enter().append("circle")
+       .attr("x", function (d) { return x(d.visitTime) + 100; })
+       .attr("y", function (d, i) { return 0; })
+       .attr("r", 10);
+
+}
+
 
 function visit_count_graph(graph_data) {
     var i;
@@ -42,7 +77,7 @@ function visit_count_graph(graph_data) {
       data_arr.push(graph_data[k]);
     }
 
-    data_arr.sort(function (a,b) {
+    data_arr.sort(function (a, b) {
         if (a.visits.length > b.visits.length) {
             return -1;
         }
@@ -51,7 +86,6 @@ function visit_count_graph(graph_data) {
         }
         return 0;
     });
-
 
     x = d3.scale.linear()
           .domain([0, d3.max(data_arr, function (d) {
@@ -155,5 +189,8 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   document.getElementById("visits_url").addEventListener("click", function () {
     visit_count_graph(data);
+  });
+  document.getElementById("visits_timeline").addEventListener("click", function () {
+    visit_timeline(domain_data["www.google.com"].visits);
   });
 });
